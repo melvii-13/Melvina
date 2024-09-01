@@ -1,0 +1,77 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Create an initial DataFrame
+data = {
+    'Title': ['Spider-Man', 'Batman', 'Superman'],
+    'Issue_Number': [1, 2, 3],
+    'Volume': [1, 1, 1],
+    'Publisher': ['Marvel', 'DC', 'DC'],
+    'Publication_Date': ['2020-01-01', '2021-05-05', '2022-03-03'],
+    'Genre': ['Action', 'Action', 'Adventure'],
+    'Price': [3.99, 4.99, 5.99]
+}
+
+comics_df = pd.DataFrame(data)
+comics_df['Publication_Date'] = pd.to_datetime(comics_df['Publication_Date'])
+# Function to add a new acquisition
+def add_comic(title, issue_number, volume, publisher, publication_date, genre, price):
+    global comics_df
+    new_comic = pd.DataFrame({
+        'Title': [title],
+        'Issue_Number': [issue_number],
+        'Volume': [volume],
+        'Publisher': [publisher],
+        'Publication_Date': [pd.to_datetime(publication_date)],
+        'Genre': [genre],
+        'Price': [price]
+    })
+    comics_df = pd.concat([comics_df, new_comic], ignore_index=True)
+
+# Function to remove duplicates
+def remove_duplicates():
+    global comics_df
+    comics_df = comics_df.drop_duplicates(subset=['Title', 'Issue_Number', 'Volume'], keep='last')
+    comics_df=comics_df.dropna(subset=['Price'])
+    comics_df=comics_df[comics_df['Price'] !=0]
+# Function to update comic information
+def update_comic(index, title=None, issue_number=None, volume=None, publisher=None, publication_date=None, genre=None, price=None):
+    global comics_df
+    if title:
+        comics_df.at[index, 'Title'] = title
+    if issue_number:
+        comics_df.at[index, 'Issue_Number'] = issue_number
+    if volume:
+        comics_df.at[index, 'Volume'] = volume
+    if publisher:
+        comics_df.at[index, 'Publisher'] = publisher
+    if publication_date:
+        comics_df.at[index, 'Publication_Date'] = pd.to_datetime(publication_date)
+    if genre:
+        comics_df.at[index, 'Genre'] = genre
+    if price:
+        comics_df.at[index, 'Price'] = price
+# Function to visualize the data
+def visualize_data():
+    plt.figure(figsize=(10, 6))
+#Distribution of prizes
+    plt.subplot(1, 2, 1)
+    sns.histplot(comics_df['Price'], kde=True, color='blue')
+    plt.title('Price Distribution’)
+#Count of comics by publishers
+    plt.subplot(1, 2, 2)
+    sns.countplot(y='Publisher', data=comics_df, palette='viridis')
+    plt.title('Comics by Publisher')
+    plt.tight_layout()
+    plt.show()
+# Example usage
+add_comic('Barbie',4,1,'Disney','2023-01-01','Animation',2.99)
+add_comic('Wonder Woman', 1, 1, 'DC', '2022-01-01', 'Action', 4.99)
+add_comic('Spider-Man', 1, 1, 'Marvel', '2020-01-01', 'Action', 3.99)  # Duplicate
+remove_duplicates()
+update_comic(2,price=1.99)
+print(comics_df)
+visualize_data()
+
